@@ -25,7 +25,7 @@ interface Ethernet4
    no shutdown
 
 interface Loopback0
-   ip address 10.100.100.1/32
+   ip address 10.21.21.21/32
 
 ! -----------------------------
 ! STP Configuration
@@ -36,18 +36,18 @@ spanning-tree mode none
 ! OSPF Configuration
 ! -----------------------------
 router ospf 100
-   router-id 10.100.100.1
+   router-id 10.21.21.21
    network 10.10.1.1/30 area 0
    network 10.10.1.5/30 area 0
    network 10.10.1.9/30 area 0
    network 10.10.1.13/30 area 0
-   network 10.100.100.1/32 area 0
+   network 10.21.21.21/32 area 0
 
 ! -----------------------------
 ! BGP Configuration
 ! -----------------------------
 router bgp 65100
-   router-id 10.100.100.1
+   router-id 10.21.21.21
    maximum-paths 4 ecmp 4
 
    neighbor 10.10.1.2 remote-as 65001
@@ -66,4 +66,4 @@ router bgp 65100
    neighbor 10.10.1.14 update-source Loopback0
    neighbor 10.10.1.14 description Leaf4
 
-   network 10.100.100.1/32
+   network 10.21.21.21/32
