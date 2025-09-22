@@ -50,20 +50,20 @@ router bgp 65100
    router-id 10.100.100.3
    maximum-paths 4 ecmp 4
 
-   neighbor Leafs peer-group
-   neighbor Leafs remote-as 65001
-   neighbor Leafs update-source Loopback0
-
-   neighbor 10.10.3.2 peer-group Leafs
+   neighbor 10.10.3.2 remote-as 65001
+   neighbor 10.10.3.2 update-source Loopback0
    neighbor 10.10.3.2 description Leaf1
 
-   neighbor 10.10.3.6 peer-group Leafs
+   neighbor 10.10.3.6 remote-as 65002
+   neighbor 10.10.3.6 update-source Loopback0
    neighbor 10.10.3.6 description Leaf2
 
-   neighbor 10.10.3.10 peer-group Leafs
+   neighbor 10.10.3.10 remote-as 65003
+   neighbor 10.10.3.10 update-source Loopback0
    neighbor 10.10.3.10 description Leaf3
 
-   neighbor 10.10.3.14 peer-group Leafs
+   neighbor 10.10.3.14 remote-as 65004
+   neighbor 10.10.3.14 update-source Loopback0
    neighbor 10.10.3.14 description Leaf4
 
    network 10.100.100.3/32
