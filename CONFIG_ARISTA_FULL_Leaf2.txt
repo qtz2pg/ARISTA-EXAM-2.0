@@ -74,7 +74,7 @@ router ospf 100
 ! -----------------------------
 ! BGP Configuration
 ! -----------------------------
-router bgp 65002
+router bgp 65001
    router-id 10.22.22.22
    maximum-paths 4 ecmp 4
 
