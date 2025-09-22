@@ -43,6 +43,14 @@ interface Vlan4094
    ip address 192.168.255.2/30
    no shutdown
 
+interface Vlan101
+   ip address 172.16.101.1/24
+   no shutdown
+
+interface Vlan102
+   ip address 172.16.102.1/24
+   no shutdown
+
 ! -----------------------------
 ! MLAG Configuration
 ! -----------------------------
@@ -69,6 +77,8 @@ router ospf 100
    network 10.10.2.6/30 area 0
    network 10.10.3.6/30 area 0
    network 10.10.4.6/30 area 0
+   network 172.16.101.0/24 area 0
+   network 172.16.102.0/24 area 0
    network 10.22.22.22/32 area 0
 
 ! -----------------------------
