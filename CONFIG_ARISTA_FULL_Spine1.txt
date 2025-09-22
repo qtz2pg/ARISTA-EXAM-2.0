@@ -6,22 +6,27 @@ ip routing
 ! -----------------------------
 interface Ethernet1
    no switchport
-   ip address 10.10.1.1/30
+   ip address 10.0.1.1/30
    no shutdown
 
 interface Ethernet2
    no switchport
-   ip address 10.10.2.1/30
+   ip address 10.0.2.1/30
    no shutdown
 
 interface Ethernet3
    no switchport
-   ip address 10.10.3.1/30
+   ip address 10.0.3.1/30
    no shutdown
 
 interface Ethernet4
    no switchport
-   ip address 10.10.4.1/30
+   ip address 10.0.4.1/30
+   no shutdown
+
+interface Ethernet5
+   no switchport
+   ip address 10.0.17.2/30
    no shutdown
 
 interface Loopback0
@@ -37,10 +42,11 @@ spanning-tree mode none
 ! -----------------------------
 router ospf 100
    router-id 10.100.100.1
-   network 10.10.1.1/30 area 0
-   network 10.10.2.1/30 area 0
-   network 10.10.3.1/30 area 0
-   network 10.10.4.1/30 area 0
+   network 10.0.1.1/30 area 0
+   network 10.0.2.1/30 area 0
+   network 10.0.3.1/30 area 0
+   network 10.0.4.1/30 area 0
+   network 10.0.17.2/30 area 0
    network 10.100.100.1/32 area 0
 
 ! -----------------------------
@@ -51,19 +57,25 @@ router bgp 65100
    maximum-paths 4 ecmp 4
 
    neighbor Leafs peer-group
-   neighbor Leafs remote-as 65001
-   neighbor Leafs update-source Loopback0
+   neighbor Leafs remote-as external
 
-   neighbor 10.10.1.2 peer-group Leafs
-   neighbor 10.10.1.2 description Leaf1
+   neighbor 10.0.1.2 peer-group Leafs
+   neighbor 10.0.1.2 remote-as 65001
+   neighbor 10.0.1.2 description Leaf1
 
-   neighbor 10.10.1.6 peer-group Leafs
-   neighbor 10.10.1.6 description Leaf2
+   neighbor 10.0.2.2 peer-group Leafs
+   neighbor 10.0.2.2 remote-as 65002
+   neighbor 10.0.2.2 description Leaf2
 
-   neighbor 10.10.1.10 peer-group Leafs
-   neighbor 10.10.1.10 description Leaf3
+   neighbor 10.0.3.2 peer-group Leafs
+   neighbor 10.0.3.2 remote-as 65003
+   neighbor 10.0.3.2 description Leaf3
 
-   neighbor 10.10.1.14 peer-group Leafs
-   neighbor 10.10.1.14 description Leaf4
+   neighbor 10.0.4.2 peer-group Leafs
+   neighbor 10.0.4.2 remote-as 65004
+   neighbor 10.0.4.2 description Leaf4
+
+   neighbor 10.0.17.1 remote-as 65500
+   neighbor 10.0.17.1 description Border1
 
    network 10.100.100.1/32
