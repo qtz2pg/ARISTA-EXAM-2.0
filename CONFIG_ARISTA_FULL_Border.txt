@@ -6,12 +6,12 @@ ip routing
 ! -----------------------------
 interface Ethernet1
    no switchport
-   ip address 10.200.1.1/30
+   ip address 10.0.17.1/30
    no shutdown
 
 interface Ethernet2
    no switchport
-   ip address 10.200.2.1/30
+   ip address 10.0.18.1/30
    no shutdown
 
 interface Loopback0
@@ -27,14 +27,14 @@ spanning-tree mode none
 ! -----------------------------
 router ospf 200
    router-id 10.200.200.1
-   network 10.200.1.1/30 area 0
-   network 10.200.2.1/30 area 0
+   network 10.0.17.1/30 area 0
+   network 10.0.18.1/30 area 0
    network 10.200.200.1/32 area 0
 
 ! -----------------------------
 ! BGP Configuration
 ! -----------------------------
-router bgp 65200
+router bgp 65500
    router-id 10.200.200.1
    maximum-paths 2 ecmp 2
 
@@ -42,10 +42,10 @@ router bgp 65200
    neighbor Core remote-as 65100
    neighbor Core update-source Loopback0
 
-   neighbor 10.200.1.2 peer-group Core
-   neighbor 10.200.1.2 description Core1
+   neighbor 10.0.17.2 peer-group Core
+   neighbor 10.0.17.2 description Core1
 
-   neighbor 10.200.2.2 peer-group Core
-   neighbor 10.200.2.2 description Core2
+   neighbor 10.0.18.2 peer-group Core
+   neighbor 10.0.18.2 description Core2
 
    network 10.200.200.1/32

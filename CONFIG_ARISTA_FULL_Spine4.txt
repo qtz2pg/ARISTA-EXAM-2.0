@@ -6,22 +6,22 @@ ip routing
 ! -----------------------------
 interface Ethernet1
    no switchport
-   ip address 10.10.4.1/30
+   ip address 10.0.13.1/30
    no shutdown
 
 interface Ethernet2
    no switchport
-   ip address 10.10.4.5/30
+   ip address 10.0.14.1/30
    no shutdown
 
 interface Ethernet3
    no switchport
-   ip address 10.10.4.9/30
+   ip address 10.0.15.1/30
    no shutdown
 
 interface Ethernet4
    no switchport
-   ip address 10.10.4.13/30
+   ip address 10.0.16.1/30
    no shutdown
 
 interface Loopback0
@@ -37,10 +37,10 @@ spanning-tree mode none
 ! -----------------------------
 router ospf 100
    router-id 10.100.100.4
-   network 10.10.4.1/30 area 0
-   network 10.10.4.5/30 area 0
-   network 10.10.4.9/30 area 0
-   network 10.10.4.13/30 area 0
+   network 10.0.13.1/30 area 0
+   network 10.0.14.1/30 area 0
+   network 10.0.15.1/30 area 0
+   network 10.0.16.1/30 area 0
    network 10.100.100.4/32 area 0
 
 ! -----------------------------
@@ -51,19 +51,23 @@ router bgp 65100
    maximum-paths 4 ecmp 4
 
    neighbor Leafs peer-group
-   neighbor Leafs remote-as 65001
+   neighbor Leafs remote-as external
    neighbor Leafs update-source Loopback0
 
-   neighbor 10.10.4.2 peer-group Leafs
-   neighbor 10.10.4.2 description Leaf1
+   neighbor 10.0.13.2 peer-group Leafs
+   neighbor 10.0.13.2 remote-as 65001
+   neighbor 10.0.13.2 description Leaf1
 
-   neighbor 10.10.4.6 peer-group Leafs
-   neighbor 10.10.4.6 description Leaf2
+   neighbor 10.0.14.2 peer-group Leafs
+   neighbor 10.0.14.2 remote-as 65002
+   neighbor 10.0.14.2 description Leaf2
 
-   neighbor 10.10.4.10 peer-group Leafs
-   neighbor 10.10.4.10 description Leaf3
+   neighbor 10.0.15.2 peer-group Leafs
+   neighbor 10.0.15.2 remote-as 65003
+   neighbor 10.0.15.2 description Leaf3
 
-   neighbor 10.10.4.14 peer-group Leafs
-   neighbor 10.10.4.14 description Leaf4
+   neighbor 10.0.16.2 peer-group Leafs
+   neighbor 10.0.16.2 remote-as 65004
+   neighbor 10.0.16.2 description Leaf4
 
    network 10.100.100.4/32
