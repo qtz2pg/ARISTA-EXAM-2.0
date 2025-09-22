@@ -1,0 +1,21 @@
+hostname Host4
+ip routing
+
+! -----------------------------
+! Interface Configuration
+! -----------------------------
+interface Ethernet1
+   no switchport
+   ip address 10.44.44.100/30
+   no shutdown
+
+interface Loopback0
+   ip address 10.44.44.200/32
+
+! -----------------------------
+! OSPF Configuration
+! -----------------------------
+router ospf 100
+   router-id 10.44.44.200
+   network 10.44.44.100/30 area 0
+   network 10.44.44.200/32 area 0
