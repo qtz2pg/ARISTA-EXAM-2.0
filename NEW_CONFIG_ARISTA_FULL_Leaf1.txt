@@ -36,12 +36,30 @@ interface Ethernet6
    ip address 10.10.4.2/30
    no shutdown
 
+! ---- Host1 Access Port ----
+interface Ethernet7
+   switchport
+   switchport mode access
+   switchport access vlan 101
+   spanning-tree portfast
+   no shutdown
+
 interface Loopback0
    ip address 10.11.11.11/32
+
+interface Vlan101
+   ip address 172.16.101.1/30
+   no shutdown
 
 interface Vlan4094
    ip address 192.168.255.1/30
    no shutdown
+
+! -----------------------------
+! VLAN Configuration
+! -----------------------------
+vlan 101
+   name Host1_VLAN
 
 ! -----------------------------
 ! MLAG Configuration
@@ -70,6 +88,7 @@ router ospf 100
    network 10.10.3.2/30 area 0
    network 10.10.4.2/30 area 0
    network 10.11.11.11/32 area 0
+   network 172.16.101.1/30 area 0
 
 ! -----------------------------
 ! BGP Configuration
@@ -95,12 +114,16 @@ router bgp 65001
    neighbor 10.10.4.1 description Spine4
 
    network 10.11.11.11/32
+   network 172.16.101.1/30
    redistribute connected route-map REDIST-CONNECTED
 
 ! -----------------------------
 ! Prefix-List + Route-Map
 ! -----------------------------
 ip prefix-list local-loopback seq 10 permit 10.11.11.11/32
+ip prefix-list local-vlan101 seq 10 permit 172.16.101.1/30
 
 route-map REDIST-CONNECTED permit 10
    match ip address prefix-list local-loopback
+route-map REDIST-CONNECTED permit 20
+   match ip address prefix-list local-vlan101
