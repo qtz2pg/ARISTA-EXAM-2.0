@@ -84,7 +84,6 @@ router bgp 65003
 
    neighbor Spines peer-group
    neighbor Spines remote-as 65100
-   neighbor Spines update-source Loopback0
 
    neighbor 10.0.3.1 peer-group Spines
    neighbor 10.0.3.1 description Spine1

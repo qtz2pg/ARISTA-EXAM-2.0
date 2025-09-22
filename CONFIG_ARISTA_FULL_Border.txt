@@ -40,7 +40,6 @@ router bgp 65500
 
    neighbor Core peer-group
    neighbor Core remote-as 65100
-   neighbor Core update-source Loopback0
 
    neighbor 10.0.17.2 peer-group Core
    neighbor 10.0.17.2 description Core1

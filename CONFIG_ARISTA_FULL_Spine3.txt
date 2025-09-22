@@ -52,7 +52,6 @@ router bgp 65100
 
    neighbor Leafs peer-group
    neighbor Leafs remote-as external
-   neighbor Leafs update-source Loopback0
 
    neighbor 10.0.9.2 peer-group Leafs
    neighbor 10.0.9.2 remote-as 65001
