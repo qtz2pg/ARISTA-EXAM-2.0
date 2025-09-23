@@ -1,8 +1,8 @@
 ! Host and management details
-hostname host3
+hostname host2
 ip routing
 
-! LACP to MLAG pair Leaf3+Leaf4
+! LACP to MLAG pair Leaf1+Leaf2
 interface Ethernet1
   channel-group 1 mode active
   no shutdown
@@ -14,22 +14,22 @@ interface Ethernet2
 interface Port-Channel1
   switchport
   switchport mode access
-  switchport access vlan 30
+  switchport access vlan 20
   spanning-tree portfast
   no shutdown
 
 ! Host SVI
 vlan 10
   name HOST1
-vlan 30
-  name HOST3
+vlan 20
+  name HOST2
 
-interface Vlan30
-  ip address 192.168.30.10/24
+interface Vlan20
+  ip address 192.168.20.10/24
   no shutdown
 
 ! Default gateway to MLAG virtual router
-ip route 0.0.0.0/0 192.168.30.254
+ip route 0.0.0.0/0 192.168.20.254
 
 ! Spanning tree configuration
 spanning-tree mode mstp

@@ -1,15 +1,15 @@
 ! Host and management details
-hostname leaf4
+hostname leaf1
 ip routing
 
 ! Loopback interfaces
 interface Loopback0
-  ip address 10.44.44.44/32
+  ip address 10.11.11.11/32
 
 interface Loopback1
-  ip address 10.54.54.54/32
+  ip address 10.51.51.51/32
 
-! MLAG peer-link (to leaf3)
+! MLAG peer-link (to leaf2)
 interface Ethernet1
   channel-group 200 mode active
   no shutdown
@@ -19,7 +19,7 @@ interface Ethernet2
   no shutdown
 
 interface Port-Channel200
-  description MLAG Peer Link to leaf3
+  description MLAG Peer Link to leaf2
   switchport
   switchport mode trunk
   switchport trunk allowed vlan 4094
@@ -33,106 +33,104 @@ vlan 4094
   trunk group MLAGPEER
 interface Vlan4094
   description MLAG Peer SVI
-  ip address 172.16.41.2/30
+  ip address 172.16.40.1/30
   no autostate
 
 ! MLAG configuration
 mlag configuration
-  domain-id MLAGSLLeaf3Leaf4
+  domain-id MLAGSLLeaf1Leaf2
   local-interface Vlan4094
-  peer-address 172.16.41.1
+  peer-address 172.16.40.2
   peer-link Port-Channel200
   reload-delay mlag 300
   reload-delay non-mlag 330
   dual-primary detection delay 5
 
 ! Virtual Router MAC for MLAG
-ip virtual-router mac-address 00:1c:73:00:dc:02
+ip virtual-router mac-address 00:1c:73:00:dc:01
 
-! Host3 LACP MLAG Port-Channel (VLAN 30)
+! Host1 LACP MLAG Port-Channel (VLAN 10)
 interface Ethernet7
-  description Host3 LACP
+  description Host1 LACP
   channel-group 1 mode active
   no shutdown
 
 interface Port-Channel1
-  description MLAG to Host3
+  description MLAG to Host1
   switchport
   switchport mode access
-  switchport access vlan 30
+  switchport access vlan 10
   mlag 1
   no shutdown
 
-! Host4 LACP MLAG Port-Channel (VLAN 40)
+! Host2 LACP MLAG Port-Channel (VLAN 20)
 interface Ethernet9
-  description Host4 LACP
+  description Host2 LACP
   channel-group 2 mode active
   no shutdown
 
 interface Port-Channel2
-  description MLAG to Host4
+  description MLAG to Host2
   switchport
   switchport mode access
-  switchport access vlan 40
+  switchport access vlan 20
   mlag 2
   no shutdown
 
 ! VLANs and SVIs for user traffic
 vlan 10
   name HOST1
-vlan 30
-  name HOST3
-vlan 40
-  name HOST4
+vlan 20
+  name HOST2
 
-interface Vlan30
-  description SVI for Host3
-  ip address 192.168.30.2/24
-  ip virtual-router address 192.168.30.254
+interface Vlan10
+  description SVI for Host1
+  ip address 192.168.10.1/24
+  ip virtual-router address 192.168.10.254
   no shutdown
 
-interface Vlan40
-  description SVI for Host4
-  ip address 192.168.40.2/24
-  ip virtual-router address 192.168.40.254
+interface Vlan20
+  description SVI for Host2
+  ip address 192.168.20.1/24
+  ip virtual-router address 192.168.20.254
   no shutdown
 
-! Routed uplinks to spines
+! Routed uplinks to spines (example: adjust IPs if necessary)
 interface Ethernet3
   no switchport
-  ip address 10.10.1.14/30
+  ip address 10.10.1.2/30
   ip ospf network point-to-point
   no shutdown
 
 interface Ethernet4
   no switchport
-  ip address 10.10.2.14/30
+  ip address 10.10.2.2/30
   ip ospf network point-to-point
   no shutdown
 
 interface Ethernet5
   no switchport
-  ip address 10.10.3.14/30
+  ip address 10.10.3.2/30
   ip ospf network point-to-point
   no shutdown
 
 interface Ethernet6
   no switchport
-  ip address 10.10.4.14/30
+  ip address 10.10.4.2/30
   ip ospf network point-to-point
   no shutdown
 
 ! OSPF configuration
 router ospf 1
-  router-id 10.44.44.44
-  network 10.44.44.44/32 area 0.0.0.0
-  network 10.10.1.14/30 area 0
-  network 10.10.2.14/30 area 0
-  network 10.10.3.14/30 area 0
-  network 10.10.4.14/30 area 0
-  network 172.16.41.2/30 area 0
-  network 192.168.30.2/32 area 0
-  network 192.168.40.2/32 area 0
+  router-id 10.11.11.11
+  network 10.11.11.11/32 area 0.0.0.1
+  network 10.10.1.2/30 area 0
+  network 10.10.2.2/30 area 0
+  network 10.10.3.2/30 area 0
+  network 10.10.4.2/30 area 0
+  network 172.16.40.1/30 area 0
+  network 192.168.10.1/32 area 0
+  network 192.168.20.1/32 area 0
   passive-interface default
   no passive-interface Ethernet3
   no passive-interface Ethernet4
@@ -140,18 +138,18 @@ router ospf 1
   no passive-interface Ethernet6
 
 ! BGP configuration
-router bgp 65004
-  router-id 10.44.44.44
+router bgp 65001
+  router-id 10.11.11.11
   maximum-paths 4 ecmp 4
   neighbor SPINES peer group
   neighbor SPINES remote-as 65100
-  neighbor 10.10.1.13 peer group SPINES
-  neighbor 10.10.2.13 peer group SPINES
-  neighbor 10.10.3.13 peer group SPINES
-  neighbor 10.10.4.13 peer group SPINES
-  network 10.44.44.44/32
-  network 192.168.30.0/24
-  network 192.168.40.0/24
+  neighbor 10.10.1.1 peer group SPINES
+  neighbor 10.10.2.1 peer group SPINES
+  neighbor 10.10.3.1 peer group SPINES
+  neighbor 10.10.4.1 peer group SPINES
+  network 10.11.11.11/32
+  network 192.168.10.0/24
+  network 192.168.20.0/24
   redistribute connected
 
 ! MLAG best practices

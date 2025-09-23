@@ -1,21 +1,40 @@
-hostname Host4
+! Host and management details
+hostname host4
 ip routing
 
-! -----------------------------
-! Interface Configuration
-! -----------------------------
+! LACP to MLAG pair Leaf3+Leaf4
 interface Ethernet1
-   no switchport
-   ip address 10.44.44.100/30
-   no shutdown
+  channel-group 1 mode active
+  no shutdown
 
-interface Loopback0
-   ip address 10.44.44.200/32
+interface Ethernet2
+  channel-group 1 mode active
+  no shutdown
 
-! -----------------------------
-! OSPF Configuration
-! -----------------------------
-router ospf 100
-   router-id 10.44.44.200
-   network 10.44.44.100/30 area 0
-   network 10.44.44.200/32 area 0
+interface Port-Channel1
+  switchport
+  switchport mode access
+  switchport access vlan 40
+  spanning-tree portfast
+  no shutdown
+
+! Host SVI
+vlan 10
+  name HOST1
+vlan 40
+  name HOST4
+
+interface Vlan40
+  ip address 192.168.40.10/24
+  no shutdown
+
+! Default gateway to MLAG virtual router
+ip route 0.0.0.0/0 192.168.40.254
+
+! Spanning tree configuration
+spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
+
+! Optional: Management, NTP, SNMP, security, etc.
+
+end
