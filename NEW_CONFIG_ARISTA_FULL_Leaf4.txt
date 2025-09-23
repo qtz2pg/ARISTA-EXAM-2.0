@@ -73,6 +73,8 @@ interface Port-Channel2
   no shutdown
 
 ! VLANs and SVIs for user traffic
+vlan 10
+  name HOST1
 vlan 30
   name HOST3
 vlan 40
@@ -149,6 +151,7 @@ router bgp 65004
 
 ! MLAG best practices
 spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
 spanning-tree vlan 4094 priority 0
 no spanning-tree vlan-id 4094
 spanning-tree portfast bpduguard default

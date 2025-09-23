@@ -149,6 +149,7 @@ router bgp 65002
 
 ! MLAG best practices
 spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
 spanning-tree vlan 4094 priority 0
 no spanning-tree vlan-id 4094
 spanning-tree portfast bpduguard default

@@ -19,12 +19,21 @@ interface Port-Channel1
   no shutdown
 
 ! Host SVI
+vlan 10
+  name HOST1
+vlan 30
+  name HOST3
+
 interface Vlan30
   ip address 192.168.30.10/24
   no shutdown
 
 ! Default gateway to MLAG virtual router
 ip route 0.0.0.0/0 192.168.30.254
+
+! Spanning tree configuration
+spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
 
 ! Optional: Management, NTP, SNMP, security, etc.
 
