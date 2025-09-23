@@ -4,54 +4,135 @@ ip routing
 
 ! Loopback interfaces
 interface Loopback0
-  ip address 10.100.100.1/32
+  ip address 10.21.21.21/32
+
+interface Loopback1
+  ip address 10.51.51.51/32
+
+! MLAG peer-link (to spine2)
+interface Ethernet1/1
+  channel-group 200 mode active
+  no shutdown
+
+interface Ethernet1/2
+  channel-group 200 mode active
+  no shutdown
+
+interface Port-Channel200
+  description MLAG Peer Link to spine2
+  switchport
+  switchport mode trunk
+  switchport trunk allowed vlan 4094
+  switchport trunk group MLAGPEER
+  mlag peer-link
+  no shutdown
+
+! MLAG VLAN SVI for peer-keepalive
+vlan 4094
+  name MLAG_PEER
+  trunk group MLAGPEER
+interface Vlan4094
+  description MLAG Peer SVI
+  ip address 172.16.42.1/30
+  no autostate
+
+! MLAG configuration
+mlag configuration
+  domain-id MLAGSpine1Spine2
+  local-interface Vlan4094
+  peer-address 172.16.42.2
+  peer-link Port-Channel200
+  reload-delay mlag 300
+  reload-delay non-mlag 330
+  dual-primary detection delay 5
+
+! Virtual Router MAC for MLAG
+ip virtual-router mac-address 00:1c:73:00:dc:02
 
 ! Routed links to leafs
-interface Ethernet1
+interface Ethernet3
   no switchport
   ip address 10.10.1.1/30
   ip ospf network point-to-point
   no shutdown
 
-interface Ethernet2
+interface Ethernet4
   no switchport
   ip address 10.10.1.5/30
   ip ospf network point-to-point
   no shutdown
 
-interface Ethernet3
+interface Ethernet5
   no switchport
   ip address 10.10.1.9/30
   ip ospf network point-to-point
   no shutdown
 
-interface Ethernet4
+interface Ethernet6
   no switchport
   ip address 10.10.1.13/30
   ip ospf network point-to-point
   no shutdown
 
+! VLANs and SVIs for user traffic
+vlan 10
+  name HOST1
+vlan 20
+  name HOST2
+vlan 30
+  name HOST3
+vlan 40
+  name HOST4
+
+interface Vlan10
+  description SVI for Host1
+  ip address 192.168.10.3/24
+  ip virtual-router address 192.168.10.254
+  no shutdown
+
+interface Vlan20
+  description SVI for Host2
+  ip address 192.168.20.3/24
+  ip virtual-router address 192.168.20.254
+  no shutdown
+
+interface Vlan30
+  description SVI for Host3
+  ip address 192.168.30.3/24
+  ip virtual-router address 192.168.30.254
+  no shutdown
+
+interface Vlan40
+  description SVI for Host4
+  ip address 192.168.40.3/24
+  ip virtual-router address 192.168.40.254
+  no shutdown
+
 ! OSPF configuration
 router ospf 1
-  router-id 10.100.100.1
-  network 10.100.100.1/32 area 0.0.0.0
+  router-id 10.21.21.21
+  network 10.21.21.21/32 area 0.0.0.0
   network 10.10.1.1/30 area 0
   network 10.10.1.5/30 area 0
   network 10.10.1.9/30 area 0
   network 10.10.1.13/30 area 0
+  network 172.16.42.1/30 area 0
+  network 192.168.10.3/32 area 0
+  network 192.168.20.3/32 area 0
+  network 192.168.30.3/32 area 0
+  network 192.168.40.3/32 area 0
   passive-interface default
-  no passive-interface Ethernet1
-  no passive-interface Ethernet2
   no passive-interface Ethernet3
   no passive-interface Ethernet4
+  no passive-interface Ethernet5
+  no passive-interface Ethernet6
 
 ! BGP configuration
 router bgp 65100
-  router-id 10.100.100.1
+  router-id 10.21.21.21
   maximum-paths 4 ecmp 4
   neighbor LEAFS peer group
   neighbor LEAFS remote-as 65001
-  neighbor LEAFS update-source Loopback0
   neighbor 10.10.1.2 peer group LEAFS
   neighbor 10.10.1.2 description Leaf1
   neighbor 10.10.1.2 remote-as 65001
@@ -64,16 +145,19 @@ router bgp 65100
   neighbor 10.10.1.14 peer group LEAFS
   neighbor 10.10.1.14 description Leaf4
   neighbor 10.10.1.14 remote-as 65004
-  network 10.100.100.1/32
+  network 10.21.21.21/32
+  network 192.168.10.0/24
+  network 192.168.20.0/24
+  network 192.168.30.0/24
+  network 192.168.40.0/24
   redistribute connected
 
-! VLANs
-vlan 10
-  name HOST1
-
-! Spanning tree configuration
+! MLAG best practices
 spanning-tree mode mstp
 spanning-tree mst 0 vlan 1-4094
+spanning-tree vlan 4094 priority 0
+no spanning-tree vlan-id 4094
+spanning-tree portfast bpduguard default
 
 ! Optional: Management, NTP, SNMP, security, etc.
 
