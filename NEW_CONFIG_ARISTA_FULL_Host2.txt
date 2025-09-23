@@ -1,18 +1,31 @@
+! Host and management details
+hostname host2
+ip routing
+
+! LACP to MLAG pair Leaf1+Leaf2
 interface Ethernet1
-   channel-group 1 mode active
+  channel-group 1 mode active
+  no shutdown
 
 interface Ethernet2
-   channel-group 1 mode active
+  channel-group 1 mode active
+  no shutdown
 
 interface Port-Channel1
-   switchport
-   switchport mode access
-   switchport access vlan 102
-   spanning-tree portfast
+  switchport
+  switchport mode access
+  switchport access vlan 20
+  spanning-tree portfast
+  no shutdown
 
-interface Vlan102
-   ip address 172.16.102.10/24
-   no shutdown
+! Host SVI
+interface Vlan20
+  ip address 192.168.20.10/24
+  no shutdown
 
-ip routing
-ip route 0.0.0.0/0 172.16.102.1
+! Default gateway to MLAG virtual router
+ip route 0.0.0.0/0 192.168.20.254
+
+! Optional: Management, NTP, SNMP, security, etc.
+
+end
