@@ -4,7 +4,13 @@ ip routing
 
 ! Loopback interfaces
 interface Loopback0
-  ip address 10.100.100.3/32
+  ip address 10.12.12.12/32
+
+interface Loopback1
+  ip address 10.52.52.52/32
+
+! Virtual Router MAC
+ip virtual-router mac-address 00:1c:73:00:dc:03
 
 ! Routed links to leafs
 interface Ethernet1
@@ -31,14 +37,52 @@ interface Ethernet4
   ip ospf network point-to-point
   no shutdown
 
+! VLANs and SVIs for user traffic
+vlan 10
+  name HOST1
+vlan 20
+  name HOST2
+vlan 30
+  name HOST3
+vlan 40
+  name HOST4
+
+interface Vlan10
+  description SVI for Host1
+  ip address 192.168.10.5/24
+  ip virtual-router address 192.168.10.254
+  no shutdown
+
+interface Vlan20
+  description SVI for Host2
+  ip address 192.168.20.5/24
+  ip virtual-router address 192.168.20.254
+  no shutdown
+
+interface Vlan30
+  description SVI for Host3
+  ip address 192.168.30.5/24
+  ip virtual-router address 192.168.30.254
+  no shutdown
+
+interface Vlan40
+  description SVI for Host4
+  ip address 192.168.40.5/24
+  ip virtual-router address 192.168.40.254
+  no shutdown
+
 ! OSPF configuration
 router ospf 1
-  router-id 10.100.100.3
-  network 10.100.100.3/32 area 0.0.0.0
+  router-id 10.12.12.12
+  network 10.12.12.12/32 area 0.0.0.0
   network 10.10.3.1/30 area 0
   network 10.10.3.5/30 area 0
   network 10.10.3.9/30 area 0
   network 10.10.3.13/30 area 0
+  network 192.168.10.5/32 area 0
+  network 192.168.20.5/32 area 0
+  network 192.168.30.5/32 area 0
+  network 192.168.40.5/32 area 0
   passive-interface default
   no passive-interface Ethernet1
   no passive-interface Ethernet2
@@ -47,11 +91,10 @@ router ospf 1
 
 ! BGP configuration
 router bgp 65100
-  router-id 10.100.100.3
+  router-id 10.12.12.12
   maximum-paths 4 ecmp 4
   neighbor LEAFS peer group
   neighbor LEAFS remote-as 65001
-  neighbor LEAFS update-source Loopback0
   neighbor 10.10.3.2 peer group LEAFS
   neighbor 10.10.3.2 description Leaf1
   neighbor 10.10.3.2 remote-as 65001
@@ -64,16 +107,17 @@ router bgp 65100
   neighbor 10.10.3.14 peer group LEAFS
   neighbor 10.10.3.14 description Leaf4
   neighbor 10.10.3.14 remote-as 65004
-  network 10.100.100.3/32
+  network 10.12.12.12/32
+  network 192.168.10.0/24
+  network 192.168.20.0/24
+  network 192.168.30.0/24
+  network 192.168.40.0/24
   redistribute connected
-
-! VLANs
-vlan 10
-  name HOST1
 
 ! Spanning tree configuration
 spanning-tree mode mstp
 spanning-tree mst 0 vlan 1-4094
+spanning-tree portfast bpduguard default
 
 ! Optional: Management, NTP, SNMP, security, etc.
 
