@@ -1,0 +1,158 @@
+! Host and management details
+hostname leaf3
+ip routing
+
+! Loopback interfaces
+interface Loopback0
+  ip address 10.33.33.33/32
+
+interface Loopback1
+  ip address 10.53.53.53/32
+
+! MLAG peer-link (to leaf4)
+interface Ethernet1
+  channel-group 200 mode active
+  no shutdown
+
+interface Ethernet2
+  channel-group 200 mode active
+  no shutdown
+
+interface Port-Channel200
+  description MLAG Peer Link to leaf4
+  switchport
+  switchport mode trunk
+  switchport trunk allowed vlan 4094
+  mlag peer-link
+  no shutdown
+
+! MLAG VLAN SVI for peer-keepalive
+vlan 4094
+  name MLAG_PEER
+interface Vlan4094
+  description MLAG Peer SVI
+  ip address 172.16.41.1/30
+  no autostate
+
+! MLAG configuration
+mlag configuration
+  domain-id MLAGSLLeaf3Leaf4
+  local-interface Vlan4094
+  peer-address 172.16.41.2
+  peer-link Port-Channel200
+  reload-delay mlag 300
+  reload-delay non-mlag 330
+  dual-primary detection delay 5
+
+! Host3 LACP MLAG Port-Channel (VLAN 30)
+interface Ethernet7
+  description Host3 LACP
+  channel-group 1 mode active
+  no shutdown
+
+interface Port-Channel1
+  description MLAG to Host3
+  switchport
+  switchport mode access
+  switchport access vlan 30
+  mlag 1
+  no shutdown
+
+! Host4 LACP MLAG Port-Channel (VLAN 40)
+interface Ethernet9
+  description Host4 LACP
+  channel-group 2 mode active
+  no shutdown
+
+interface Port-Channel2
+  description MLAG to Host4
+  switchport
+  switchport mode access
+  switchport access vlan 40
+  mlag 2
+  no shutdown
+
+! VLANs and SVIs for user traffic
+vlan 30
+  name HOST3
+vlan 40
+  name HOST4
+
+interface Vlan30
+  description SVI for Host3
+  ip address 192.168.30.1/24
+  ip virtual-router address 192.168.30.254
+  no shutdown
+
+interface Vlan40
+  description SVI for Host4
+  ip address 192.168.40.1/24
+  ip virtual-router address 192.168.40.254
+  no shutdown
+
+! Routed uplinks to spines
+interface Ethernet3
+  no switchport
+  ip address 10.10.1.10/30
+  ip ospf network point-to-point
+  no shutdown
+
+interface Ethernet4
+  no switchport
+  ip address 10.10.2.10/30
+  ip ospf network point-to-point
+  no shutdown
+
+interface Ethernet5
+  no switchport
+  ip address 10.10.3.10/30
+  ip ospf network point-to-point
+  no shutdown
+
+interface Ethernet6
+  no switchport
+  ip address 10.10.4.10/30
+  ip ospf network point-to-point
+  no shutdown
+
+! OSPF configuration
+router ospf 1
+  router-id 10.33.33.33
+  network 10.33.33.33/32 area 0.0.0.1
+  network 10.10.1.10/30 area 0
+  network 10.10.2.10/30 area 0
+  network 10.10.3.10/30 area 0
+  network 10.10.4.10/30 area 0
+  network 172.16.41.1/30 area 0
+  network 192.168.30.1/32 area 0
+  network 192.168.40.1/32 area 0
+  passive-interface default
+  no passive-interface Ethernet3
+  no passive-interface Ethernet4
+  no passive-interface Ethernet5
+  no passive-interface Ethernet6
+
+! BGP configuration
+router bgp 65003
+  router-id 10.33.33.33
+  maximum-paths 4 ecmp 4
+  neighbor SPINES peer group
+  neighbor SPINES remote-as 65100
+  neighbor 10.10.1.9 peer group SPINES
+  neighbor 10.10.2.9 peer group SPINES
+  neighbor 10.10.3.9 peer group SPINES
+  neighbor 10.10.4.9 peer group SPINES
+  network 10.33.33.33/32
+  network 192.168.30.0/24
+  network 192.168.40.0/24
+  redistribute connected
+
+! MLAG best practices
+spanning-tree mode mstp
+spanning-tree vlan 4094 priority 0
+no spanning-tree vlan-id 4094
+spanning-tree portfast bpduguard default
+
+! Optional: Management, NTP, SNMP, security, etc.
+
+end
