@@ -67,8 +67,13 @@ router bgp 65100
   network 10.100.100.2/32
   redistribute connected
 
+! VLANs
+vlan 10
+  name HOST1
+
 ! Spanning tree configuration
 spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
 
 ! Optional: Management, NTP, SNMP, security, etc.
 

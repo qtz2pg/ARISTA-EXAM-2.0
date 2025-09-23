@@ -23,12 +23,14 @@ interface Port-Channel200
   switchport
   switchport mode trunk
   switchport trunk allowed vlan 4094
+  switchport trunk group MLAGPEER
   mlag peer-link
   no shutdown
 
 ! MLAG VLAN SVI for peer-keepalive
 vlan 4094
   name MLAG_PEER
+  trunk group MLAGPEER
 interface Vlan4094
   description MLAG Peer SVI
   ip address 172.16.41.2/30
@@ -43,6 +45,9 @@ mlag configuration
   reload-delay mlag 300
   reload-delay non-mlag 330
   dual-primary detection delay 5
+
+! Virtual Router MAC for MLAG
+ip virtual-router mac-address 00:1c:73:00:dc:02
 
 ! Host3 LACP MLAG Port-Channel (VLAN 30)
 interface Ethernet7
@@ -73,6 +78,8 @@ interface Port-Channel2
   no shutdown
 
 ! VLANs and SVIs for user traffic
+vlan 10
+  name HOST1
 vlan 30
   name HOST3
 vlan 40
@@ -118,7 +125,7 @@ interface Ethernet6
 ! OSPF configuration
 router ospf 1
   router-id 10.44.44.44
-  network 10.44.44.44/32 area 0.0.0.1
+  network 10.44.44.44/32 area 0.0.0.0
   network 10.10.1.14/30 area 0
   network 10.10.2.14/30 area 0
   network 10.10.3.14/30 area 0
@@ -149,6 +156,7 @@ router bgp 65004
 
 ! MLAG best practices
 spanning-tree mode mstp
+spanning-tree mst 0 vlan 1-4094
 spanning-tree vlan 4094 priority 0
 no spanning-tree vlan-id 4094
 spanning-tree portfast bpduguard default
